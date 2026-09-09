@@ -521,12 +521,3 @@ Future improvements can include:
 
 ---
 
-## Author
-
-**Shivshankar Kumbar**
-
-Ansible Raspberry Pi Deployment Project
-
-GitHub Repository:
-
-https://github.com/shivshankar003/setupansible
