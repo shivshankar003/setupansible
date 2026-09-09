@@ -8,9 +8,6 @@
     remote_project: "/home/dreamvu/wpu-anubhava"
 
   tasks:
-
- 
-
     - name: Create project directory
       ansible.builtin.file:
         path: "{{ remote_project }}"
@@ -18,9 +15,6 @@
         owner: dreamvu
         group: dreamvu
         mode: '0755'
-
-
-
 
     - name: Copy local WPU project to Raspberry Pi
       become: false
@@ -41,8 +35,6 @@
       delegate_to: localhost
 
 
-
-
     - name: Set project ownership
       ansible.builtin.file:
         path: "{{ remote_project }}"
@@ -57,7 +49,6 @@
         curl -LsSf https://astral.sh/uv/install.sh | sh
       args:
         creates: "/home/dreamvu/.local/bin/uv"
-
 
 
     - name: Create Python virtual environment with system packages
@@ -84,7 +75,6 @@
         'Removed' in uv_sync_result.stdout
 
 
-
     - name: Create WPU log directory
       ansible.builtin.file:
         path: /var/log/wpu-client
@@ -92,9 +82,6 @@
         owner: dreamvu
         group: dreamvu
         mode: '0755'
-
-
-
 
     - name: Create WPU systemd service
       ansible.builtin.copy:
@@ -125,22 +112,16 @@
           WantedBy=graphical.target
       register: wpu_service
 
-
-
     - name: Reload systemd
       ansible.builtin.systemd:
         daemon_reload: true
       when: wpu_service.changed
 
 
-  
-
     - name: Enable WPU service
       ansible.builtin.systemd:
         name: wpu-client-ansible.service
         enabled: true
-
-
 
 
     - name: Start WPU service
