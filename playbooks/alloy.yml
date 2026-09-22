@@ -1,0 +1,6 @@
+---
+- name: Deploy Grafana Alloy
+  hosts: raspberrypi
+  become: true
+  roles:
+    - alloy

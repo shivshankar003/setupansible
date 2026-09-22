@@ -1,0 +1,54 @@
+---
+- name: Set WPU device identity from inventory hostname
+  ansible.builtin.set_fact:
+    device_id: "{{ inventory_hostname }}"
+
+
+- name: Ensure WPU project directory exists
+  ansible.builtin.file:
+    path: "{{ wpu_project_dir }}"
+    state: directory
+    owner: "{{ wpu_user }}"
+    group: "{{ wpu_user }}"
+    mode: "0755"
+
+- name: Ensure WPU data directories exist
+  ansible.builtin.file:
+    path: "{{ wpu_project_dir }}/{{ item }}"
+    state: directory
+    owner: "{{ wpu_user }}"
+    group: "{{ wpu_user }}"
+    mode: "0755"
+  loop:
+    - data
+    - data/embeddings
+    - data/people
+    - data/stock_images
+    - models
+    - config
+
+- name: Ensure WPU log directory exists
+  ansible.builtin.file:
+    path: /var/log/wpu-client
+    state: directory
+    owner: "{{ wpu_user }}"
+    group: "{{ wpu_user }}"
+    mode: "0755"
+
+- name: Deploy WPU application
+  ansible.builtin.include_tasks:
+    file: deploy.yml
+
+
+- name: Configure WPU
+  ansible.builtin.include_tasks:
+    file: config.yml
+
+- name: Configure WPU systemd services
+  ansible.builtin.include_tasks:
+    file: systemd.yml
+
+
+- name: Determine desired WPU runtime mode
+  ansible.builtin.include_tasks:
+    file: mode.yml

@@ -1,0 +1,14 @@
+---
+- name: Deploy WPU application
+  hosts: raspberrypi
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Set WPU device identity from inventory hostname
+      ansible.builtin.set_fact:
+        device_id: "{{ inventory_hostname }}"
+
+    - name: Deploy WPU role
+      ansible.builtin.include_role:
+        name: wpu

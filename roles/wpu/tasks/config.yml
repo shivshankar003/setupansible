@@ -1,0 +1,8 @@
+---
+- name: Deploy WPU configuration
+  ansible.builtin.template:
+    src: config.yaml.j2
+    dest: "{{ wpu_project_dir }}/config/config.yaml"
+    owner: "{{ wpu_user }}"
+    group: "{{ wpu_user }}"
+    mode: "0644"

@@ -1,0 +1,7 @@
+---
+- name: Validate WPU Python environment
+  hosts: raspberrypi
+  become: false
+
+  roles:
+    - python

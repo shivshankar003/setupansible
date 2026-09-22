@@ -1,0 +1,7 @@
+---
+- name: Configure common Raspberry Pi dependencies
+  hosts: raspberrypi
+  become: true
+
+  roles:
+    - common

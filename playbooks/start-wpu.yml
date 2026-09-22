@@ -1,0 +1,46 @@
+---
+- name: Start WPU runtime
+  hosts: raspberrypi
+  become: true
+  gather_facts: true
+
+  tasks:
+    - name: Validate WPU runtime mode
+      ansible.builtin.assert:
+        that:
+          - wpu.mode in wpu_mode_services
+        fail_msg: >-
+          Invalid WPU mode '{{ wpu.mode }}'.
+          Supported modes: {{ wpu_mode_services.keys() | list | join(', ') }}
+
+    - name: Determine WPU service
+      ansible.builtin.set_fact:
+        wpu_service: "{{ wpu_mode_services[wpu.mode] }}"
+
+    - name: Start selected WPU service
+      ansible.builtin.systemd:
+        name: "{{ wpu_service }}"
+        state: started
+        enabled: "{{ wpu.mode == 'server' }}"
+        daemon_reload: true
+
+    - name: Verify selected WPU service
+      ansible.builtin.command:
+        cmd: "systemctl is-active {{ wpu_service }}"
+      register: wpu_service_status
+      changed_when: false
+
+    - name: Fail if WPU service is not active
+      ansible.builtin.fail:
+        msg: >-
+          WPU service {{ wpu_service }} is not active on
+          {{ inventory_hostname }}.
+      when: wpu_service_status.stdout.strip() != "active"
+
+    - name: Display WPU runtime state
+      ansible.builtin.debug:
+        msg: >-
+          {{ inventory_hostname }}:
+          WPU mode={{ wpu.mode }},
+          service={{ wpu_service }},
+          state=active

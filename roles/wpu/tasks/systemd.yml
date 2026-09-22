@@ -1,0 +1,27 @@
+---
+- name: Install WPU server systemd unit
+  ansible.builtin.template:
+    src: slideshow-server.service.j2
+    dest: /etc/systemd/system/slideshow-server.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Install WPU diagnostic systemd unit
+  ansible.builtin.template:
+    src: slideshow-diagnostic.service.j2
+    dest: /etc/systemd/system/slideshow-diagnostic.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd
+
+- name: Install WPU only systemd unit
+  ansible.builtin.template:
+    src: slideshow-only.service.j2
+    dest: /etc/systemd/system/slideshow-only.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd

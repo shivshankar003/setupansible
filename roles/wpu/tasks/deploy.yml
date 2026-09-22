@@ -1,0 +1,30 @@
+---
+- name: Copy WPU application code
+  ansible.posix.synchronize:
+    src: "/media/sf_clean-wpu/"
+    dest: "{{ wpu_project_dir }}/"
+    archive: false
+    recursive: true
+    delete: false
+    checksum: true
+    rsync_opts:
+      - "--exclude=.git/"
+      - "--exclude=.venv/"
+      - "--exclude=__pycache__/"
+      - "--exclude=.pytest_cache/"
+      - "--exclude=*.pyc"
+      - "--exclude=.github/"
+      - "--exclude=tests/"
+      - "--exclude=data/embeddings/"
+      - "--exclude=data/people/"
+      - "--exclude=data/base_assets/"
+      - "--exclude=config/config.yaml"
+  delegate_to: localhost
+  become: false
+
+- name: Set WPU application ownership
+  ansible.builtin.file:
+    path: "{{ wpu_project_dir }}"
+    owner: "{{ wpu_user }}"
+    group: "{{ wpu_user }}"
+    recurse: true

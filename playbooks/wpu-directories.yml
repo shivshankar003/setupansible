@@ -1,0 +1,7 @@
+---
+- name: Configure WPU directories
+  hosts: raspberrypi
+  become: true
+
+  roles:
+    - wpu

@@ -1,0 +1,150 @@
+---
+- name: Deploy local WPU Client to Raspberry Pi
+  hosts: raspberrypi
+  become: true
+
+  vars:
+    local_project: "/media/sf_am-wpu"
+    remote_project: "/home/dreamvu/amu-client"
+
+  tasks:
+
+ 
+
+    - name: Create project directory
+      ansible.builtin.file:
+        path: "{{ remote_project }}"
+        state: directory
+        owner: dreamvu
+        group: dreamvu
+        mode: '0755'
+
+
+
+
+    - name: Copy local WPU project to Raspberry Pi
+      become: false
+      ansible.posix.synchronize:
+        src: "{{ local_project }}/"
+        dest: "{{ remote_project }}/"
+        delete: false
+        archive: false
+        recursive: true
+        checksum: true
+        rsync_opts:
+          - "--exclude=.venv/"
+          - "--exclude=.git/"
+          - "--exclude=.pytest_cache/"
+          - "--exclude=__pycache__/"
+          - "--exclude=*.pyc"
+          - "--exclude=.DS_Store"
+      delegate_to: localhost
+
+
+
+
+    - name: Set project ownership
+      ansible.builtin.file:
+        path: "{{ remote_project }}"
+        owner: dreamvu
+        group: dreamvu
+        recurse: true
+
+
+    - name: Install uv
+      become: false
+      ansible.builtin.shell: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+      args:
+        creates: "/home/dreamvu/.local/bin/uv"
+
+
+
+    - name: Create Python virtual environment with system packages
+      become: false
+      ansible.builtin.shell: |
+        export PATH="/home/dreamvu/.local/bin:$PATH"
+        uv venv --system-site-packages
+      args:
+        chdir: "{{ remote_project }}"
+        creates: "{{ remote_project }}/.venv/bin/python"
+
+
+    - name: Install project dependencies
+      become: false
+      ansible.builtin.shell: |
+        export PATH="/home/dreamvu/.local/bin:$PATH"
+        uv sync
+      args:
+        chdir: "{{ remote_project }}"
+      register: uv_sync_result
+      changed_when: >
+        'Installed' in uv_sync_result.stdout or
+        'Updated' in uv_sync_result.stdout or
+        'Removed' in uv_sync_result.stdout
+
+
+
+    - name: Create WPU log directory
+      ansible.builtin.file:
+        path: /var/log/wpu-client
+        state: directory
+        owner: dreamvu
+        group: dreamvu
+        mode: '0755'
+
+
+
+
+    - name: Create WPU systemd service
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/wpu-client-ansible.service
+        owner: root
+        group: root
+        mode: '0644'
+        content: |
+          [Unit]
+          Description=WPU Client - Ansible Deployment
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          User=dreamvu
+          WorkingDirectory={{ remote_project }}
+
+          Environment=WAYLAND_DISPLAY=wayland-0
+          Environment=XDG_RUNTIME_DIR=/run/user/1000
+
+          ExecStart={{ remote_project }}/.venv/bin/python main.py --service all
+
+          Restart=always
+          RestartSec=3
+
+          [Install]
+          WantedBy=graphical.target
+      register: wpu_service
+
+
+
+    - name: Reload systemd
+      ansible.builtin.systemd:
+        daemon_reload: true
+      when: wpu_service.changed
+
+
+  
+
+    - name: Enable WPU service
+      ansible.builtin.systemd:
+        name: wpu-client-ansible.service
+        enabled: true
+
+
+
+
+    - name: Start WPU service
+      ansible.builtin.systemd:
+        name: wpu-client-ansible.service
+        state: started
+        

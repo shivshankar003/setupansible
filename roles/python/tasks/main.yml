@@ -1,0 +1,36 @@
+---
+- name: Check WPU virtual environment
+  ansible.builtin.stat:
+    path: "{{ wpu_project_dir }}/.venv/bin/python"
+  register: wpu_venv_python
+
+- name: Create WPU virtual environment
+  ansible.builtin.command:
+    cmd: python3 -m venv --system-site-packages .venv
+    chdir: "{{ wpu_project_dir }}"
+  become_user: "{{ wpu_user }}"
+  when: not wpu_venv_python.stat.exists
+
+- name: Upgrade pip
+  ansible.builtin.command:
+    cmd: ./.venv/bin/python -m pip install --upgrade pip
+    chdir: "{{ wpu_project_dir }}"
+  become_user: "{{ wpu_user }}"
+  when: not wpu_venv_python.stat.exists
+
+- name: Install WPU Python dependencies
+  ansible.builtin.command:
+    cmd: ./.venv/bin/pip install --timeout 120 --retries 5 -e .
+    chdir: "{{ wpu_project_dir }}"
+  become_user: "{{ wpu_user }}"
+  when: not wpu_venv_python.stat.exists
+
+- name: Verify WPU virtual environment
+  ansible.builtin.stat:
+    path: "{{ wpu_project_dir }}/.venv/bin/python"
+  register: wpu_venv_python_after
+
+- name: Fail if WPU virtual environment is missing
+  ansible.builtin.fail:
+    msg: "WPU virtual environment is missing: {{ wpu_project_dir }}/.venv/bin/python"
+  when: not wpu_venv_python_after.stat.exists

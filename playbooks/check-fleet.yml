@@ -1,0 +1,39 @@
+---
+- name: Validate Raspberry Pi fleet
+  hosts: raspberrypi
+  become: true
+
+  tasks:
+    - name: Gather system facts
+      ansible.builtin.setup:
+
+    - name: Show device information
+      ansible.builtin.debug:
+        msg:
+          - "Device ID: {{ device_id }}"
+          - "Hostname: {{ ansible_facts['hostname'] }}"
+          - "OS: {{ ansible_facts['distribution'] }} {{ ansible_facts['distribution_version'] }}"
+          - "Architecture: {{ ansible_facts['architecture'] }}"
+          - "Python: {{ ansible_facts['python']['executable'] }}"
+          - "CPU cores: {{ ansible_facts['processor_vcpus'] }}"
+          - "Memory: {{ ansible_facts['memtotal_mb'] }} MB"
+
+    - name: Verify Ansible user
+      ansible.builtin.command:
+        cmd: whoami
+      register: current_user
+      changed_when: false
+
+    - name: Show effective user
+      ansible.builtin.debug:
+        var: current_user.stdout
+
+    - name: Verify Python
+      ansible.builtin.command:
+        cmd: python3 --version
+      register: python_version
+      changed_when: false
+
+    - name: Show Python version
+      ansible.builtin.debug:
+        var: python_version.stdout

@@ -1,0 +1,63 @@
+---
+# Common settings for every Raspberry Pi
+
+wpu_user: "dreamvu"
+wpu_project_dir: "/home/dreamvu/amu-wpu1"
+
+ansible_python_interpreter: "/usr/bin/python3.11"
+
+wpu_server:
+  host: "192.168.1.19"
+  port: 8000
+
+wpu_mode_services:
+  server: "slideshow-server.service"
+  diagnostic: "slideshow-diagnostic.service"
+  only: "slideshow-only.service"
+
+wpu_config:
+  log_level: "INFO"
+
+  slideshow:
+    enabled: true
+    full_screen: true
+    advance_time: 2
+    image_directory: "data/stock_images"
+    image_extensions:
+      - "*.png"
+      - "*.jpg"
+      - "*.jpeg"
+      - "*.gif"
+      - "*.bmp"
+      - "*.webp"
+    video_extensions:
+      - "*.mov"
+      - "*.mp4"
+    background_color: "black"
+    scale_mode: "fill"
+    sort_mode: "alphabetical"
+
+  face_recognition:
+    enabled: true
+    camera_id: 0
+    n: 4
+    model: "mobilenet"
+    detection_interval: 1
+    sau_cutout_filename: "sau_cutout.png"
+    fru_cutout_filename: "fru_cutout.png"
+    video_count: 1
+    use_legacy_final_images: false
+    base_assets_max_bytes: 5368709120
+    min_face_size: 100
+    display_result: true
+    overlay_hide_delay: 3
+    person_timeout: 3
+    diagnostic_gallery_dir: "data/embeddings"
+    diagnostic_match_threshold: 0.5
+
+alloy_loki_url: "http://192.168.1.10:3100/loki/api/v1/push"
+
+
+wpu:
+  mode: "diagnostic"
+  version: "0.1.0"

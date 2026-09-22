@@ -1,0 +1,7 @@
+---
+- name: Check WPU desired runtime mode
+  hosts: raspberrypi
+  become: true
+
+  roles:
+    - wpu

@@ -1,0 +1,25 @@
+---
+- name: Validate WPU runtime mode
+  ansible.builtin.assert:
+    that:
+      - wpu.mode in wpu_mode_services
+    fail_msg: >-
+      Invalid WPU mode '{{ wpu.mode }}'.
+      Supported modes: {{ wpu_mode_services.keys() | list | join(', ') }}
+
+- name: Determine desired WPU service
+  ansible.builtin.set_fact:
+    wpu_service: "{{ wpu_mode_services[wpu.mode] }}"
+
+- name: Stop all WPU services during provisioning
+  ansible.builtin.systemd:
+    name: "{{ item }}"
+    state: stopped
+    enabled: false
+  loop: "{{ wpu_mode_services.values() | list }}"
+
+- name: Display prepared WPU mode
+  ansible.builtin.debug:
+    msg: >-
+      WPU mode={{ wpu.mode }} prepared.
+      Service={{ wpu_service }} will be started by the runtime stage.

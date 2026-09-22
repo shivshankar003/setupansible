@@ -1,0 +1,21 @@
+---
+- name: Configure Raspberry Pi identity
+  hosts: raspberrypi
+  become: true
+
+  tasks:
+    - name: Create WPU configuration directory
+      ansible.builtin.file:
+        path: /etc/wpu-client
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Configure persistent WPU device identity
+      ansible.builtin.copy:
+        content: "{{ inventory_hostname }}\n"
+        dest: /etc/wpu-client/device-id
+        owner: root
+        group: root
+        mode: "0644"

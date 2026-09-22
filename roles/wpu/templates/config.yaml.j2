@@ -1,0 +1,54 @@
+# WPU Client Configuration
+# Managed by Ansible — do not edit directly.
+
+log_level: "{{ wpu_config.log_level }}"
+
+services:
+  slideshow:
+    enabled: {{ wpu_config.slideshow.enabled | lower }}
+    full_screen: {{ wpu_config.slideshow.full_screen | lower }}
+    advance_time: {{ wpu_config.slideshow.advance_time }}
+    image_directory: "{{ wpu_config.slideshow.image_directory }}"
+
+    image_extensions:
+{% for ext in wpu_config.slideshow.image_extensions %}
+      - "{{ ext }}"
+{% endfor %}
+
+    video_extensions:
+{% for ext in wpu_config.slideshow.video_extensions %}
+      - "{{ ext }}"
+{% endfor %}
+
+    background_color: "{{ wpu_config.slideshow.background_color }}"
+    scale_mode: "{{ wpu_config.slideshow.scale_mode }}"
+    sort_mode: "{{ wpu_config.slideshow.sort_mode }}"
+
+  face_recognition:
+    enabled: {{ wpu_config.face_recognition.enabled | lower }}
+    camera_id: {{ wpu_config.face_recognition.camera_id }}
+    n: {{ wpu_config.face_recognition.n }}
+    model: "{{ wpu_config.face_recognition.model }}"
+
+    api_endpoint: "http://{{ wpu_server.host }}:{{ wpu_server.port }}/api/v1/identify/"
+    wpu_endpoint: "http://{{ wpu_server.host }}:{{ wpu_server.port }}/api/v1/wpu/images"
+
+    detection_interval: {{ wpu_config.face_recognition.detection_interval }}
+
+    sau_cutout_filename: "{{ wpu_config.face_recognition.sau_cutout_filename }}"
+    fru_cutout_filename: "{{ wpu_config.face_recognition.fru_cutout_filename }}"
+
+    sau_media_endpoint: "http://{{ wpu_server.host }}:{{ wpu_server.port }}/api/v1/sau/media"
+    video_count: {{ wpu_config.face_recognition.video_count }}
+
+    use_legacy_final_images: {{ wpu_config.face_recognition.use_legacy_final_images | lower }}
+    base_assets_max_bytes: {{ wpu_config.face_recognition.base_assets_max_bytes }}
+
+    min_face_size: {{ wpu_config.face_recognition.min_face_size }}
+    display_result: {{ wpu_config.face_recognition.display_result | lower }}
+    overlay_hide_delay: {{ wpu_config.face_recognition.overlay_hide_delay }}
+    person_timeout: {{ wpu_config.face_recognition.person_timeout }}
+
+    diagnostic_mode: {{ (wpu.mode == 'diagnostic') | lower }}
+    diagnostic_gallery_dir: "{{ wpu_config.face_recognition.diagnostic_gallery_dir }}"
+    diagnostic_match_threshold: {{ wpu_config.face_recognition.diagnostic_match_threshold }}
